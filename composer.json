@@ -1,0 +1,55 @@
+{
+    "name": "squarelovin/laravel-s3-to-uploaded-file",
+    "description": "For vapor client that want to use the uploading file functionality and validate it at the backend at a normal uploaded file",
+    "keywords": [
+        "squarelovin",
+        "laravel-s3-to-uploaded-file"
+    ],
+    "homepage": "https://github.com/squarelovin/laravel-s3-to-uploaded-file",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Hazem ali",
+            "email": "hazym.aly@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/support": "^8.0",
+      "ext-fileinfo": "*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Squarelovin\\LaravelS3ToUploadedFile\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Squarelovin\\LaravelS3ToUploadedFile\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Squarelovin\\LaravelS3ToUploadedFile\\LaravelS3ToUploadedFileServiceProvider"
+            ],
+            "aliases": {
+                "LaravelS3ToUploadedFile": "Squarelovin\\LaravelS3ToUploadedFile\\LaravelS3ToUploadedFileFacade"
+            }
+        }
+    }
+}
