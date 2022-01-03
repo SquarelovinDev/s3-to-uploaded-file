@@ -28,7 +28,7 @@ class LaravelS3ToUploadedFile extends UploadedFile
         $tempFile = tempnam(sys_get_temp_dir(), 's3-file-');
         file_put_contents($tempFile, $stream);
         $mimeType = mime_content_type($tempFile);
-
+        $storage->delete($filepath);
         return new static($tempFile, $originalName, $mimeType, $error, $test);
     }
 
