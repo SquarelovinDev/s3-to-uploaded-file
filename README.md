@@ -6,7 +6,7 @@
 
 [comment]: <> (![GitHub Actions]&#40;https://github.com/squarelovin/laravel-s3-to-uploaded-file/actions/workflows/main.yml/badge.svg&#41;)
 
-As it is the user normally uploaded to your application, so you can perform apply all the validation rules as usualm
+As it is the user normally uploaded to your application, so you can perform apply all the validation rules as usual
 
 ## Installation
 
