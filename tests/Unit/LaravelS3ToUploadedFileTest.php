@@ -43,6 +43,87 @@ class LaravelS3ToUploadedFileTest extends TestCase
 
     }
 
+
+    /** @test */
+    public function it_adds_multiple_files_to_the_request()
+    {
+
+        Storage::fake();
+
+        $request = new Request();
+
+        $prefix = config('s3-uploaded.prefix');
+        $inputName = $prefix . '-my-file';
+
+        $request->headers->set('Authorization', 'Bearer some-token');
+
+        $filename = 'some-file.png';
+
+        $fakeFile = Storage::put($filename, base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=='
+        ));
+
+
+        $request->merge([$inputName => [
+            [
+                'path' => $filename,
+                'original_name' => $filename
+            ], [
+                'path' => $filename,
+                'original_name' => $filename
+            ]
+        ]]);
+
+        (new S3fileToFileUploadMiddleware())->handle($request, function ($request) {
+            $this->assertNotEmpty($request->files->get('file-upload-my-file.0'));
+            $this->assertNotEmpty($request->files->get('file-upload-my-file.1'));
+        });
+
+    }
+
+    /** @test */
+    public function it_makes_multiple_files_avaialbe_for_validation()
+    {
+        Storage::fake();
+
+        $request = new Request();
+
+        $prefix = config('s3-uploaded.prefix');
+        $inputName = $prefix . '-0';
+
+        $request->headers->set('Authorization', 'Bearer some-token');
+
+        $filename = 'some-file.png';
+
+        $fakeFile = Storage::put($filename, base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=='
+        ));
+
+
+        $request->merge([$inputName => [
+            [
+                'path' => $filename,
+                'original_name' => $filename
+            ], [
+                'path' => $filename,
+                'original_name' => $filename
+            ]
+        ]]);
+
+        (new S3fileToFileUploadMiddleware())->handle($request, function ($request) use ($inputName) {
+
+            $validator = Validator::make($request->all(),
+                [
+                    $inputName => 'required|array',
+                    $inputName . '*' => 'required|image'
+                ]);
+
+            $this->assertFalse($validator->fails());
+
+        });
+    }
+
+
     /** @test */
     public function it_makes_the_file_available_for_validation()
     {

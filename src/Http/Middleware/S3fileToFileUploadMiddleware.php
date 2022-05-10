@@ -39,19 +39,52 @@ class S3fileToFileUploadMiddleware
                 continue;
             }
 
-            $request->validate([
-                $name . ".path" => 'required|string',
-                $name . ".original_name" => 'required|string',
-            ]);
+            if (isset($value[0]) && is_array($value[0])) {
+                foreach ($value as $key => $item) {
+                    $request = $this->setRequest($request, $name, $item, $key);
+                }
+            } else {
+                $request = $this->setRequest($request, $name, $value);
+            }
 
-            $file = LaravelS3ToUploadedFile::createFromDisk(
-                Storage::disk($this->diskName), $value['path'], $value['original_name']
-            );
 
-//            $name = 'uploaded-' . $name;
-            $request->files->set($name, $file);
+        }
+
+        return $request;
+    }
+
+    /**
+     * @param Request $request
+     * @param $name
+     * @param $value
+     * @param null $key
+     * @return Request
+     * @throws \League\Flysystem\FileNotFoundException
+     */
+    protected function setRequest(Request $request, $name, $value, $key = null): Request
+    {
+        $isArray = !is_null($key);
+
+        $validationPropertyName = $name . ($isArray ? '.*' : null);
+        $propertyName = $name . ($isArray ? '.' . $key : null);
+
+        $request->validate([
+            $validationPropertyName . ".path" => 'required|string',
+            $validationPropertyName . ".original_name" => 'required|string',
+        ]);
+
+        $file = LaravelS3ToUploadedFile::createFromDisk(
+            Storage::disk($this->diskName), $value['path'], $value['original_name']
+        );
+
+        $request->files->set($propertyName, $file);
+
+        if ($isArray) {
+            $files = $request->get($name, []);
+            $files[] = $file;
+            $request->merge([$name => $files]);
+        } else {
             $request->merge([$name => $file]);
-
         }
 
         return $request;
