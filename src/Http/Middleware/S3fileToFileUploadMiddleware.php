@@ -4,6 +4,7 @@ namespace Squarelovin\LaravelS3ToUploadedFile\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Squarelovin\LaravelS3ToUploadedFile\LaravelS3ToUploadedFile;
@@ -80,7 +81,10 @@ class S3fileToFileUploadMiddleware
         $request->files->set($propertyName, $file);
 
         if ($isArray) {
-            $files = $request->get($name, []);
+            $files = collect($request->get($name, []))->filter(function($value){
+                return $value instanceof UploadedFile;
+            })->toArray();
+
             $files[] = $file;
             $request->merge([$name => $files]);
         } else {
