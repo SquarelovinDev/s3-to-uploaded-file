@@ -5,6 +5,7 @@ namespace Squarelovin\LaravelS3ToUploadedFile\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Squarelovin\LaravelS3ToUploadedFile\LaravelS3ToUploadedFile;
@@ -36,7 +37,15 @@ class S3fileToFileUploadMiddleware
 
         foreach ($request->all() as $name => $value) {
 
-            if (!Str::of($name)->startsWith($this->prefix) || !is_array($value)) {
+            if (($this->prefix !== '*' && !Str::of($name)->startsWith($this->prefix)) || !is_array($value)) {
+                continue;
+            }
+
+            if ($this->prefix === '*' && !is_array($value)) {
+                continue;
+            }
+
+            if ($this->prefix === '*' && !in_array('path', array_keys($value))) {
                 continue;
             }
 
@@ -81,7 +90,7 @@ class S3fileToFileUploadMiddleware
         $request->files->set($propertyName, $file);
 
         if ($isArray) {
-            $files = collect($request->get($name, []))->filter(function($value){
+            $files = collect($request->get($name, []))->filter(function ($value) {
                 return $value instanceof UploadedFile;
             })->toArray();
 

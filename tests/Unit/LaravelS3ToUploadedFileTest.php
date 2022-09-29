@@ -205,4 +205,27 @@ class LaravelS3ToUploadedFileTest extends TestCase
 
     }
 
+    /** @test */
+    public function it_process_all_fields_without_prefix(){
+
+        $request = new Request();
+
+        config(['s3-uploaded.prefix' => '*']);
+
+        $inputName = 'some-input';
+
+        $request->merge([$inputName => [
+            'path' => 'string'
+        ]]);
+
+        try {
+            (new S3fileToFileUploadMiddleware())->handle($request, function ($request) {
+            });
+            $this->assertTrue(false, 'a validation error should be thrown');
+        } catch (ValidationException $exception) {
+            $this->assertNotEmpty($exception->errors());
+            $this->assertArrayHasKey($inputName . '.original_name', $exception->errors());
+        }
+    }
+
 }
