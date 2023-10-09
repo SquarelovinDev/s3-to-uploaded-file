@@ -7,7 +7,7 @@ use finfo;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use League\Flysystem\FileNotFoundException;
+use Squarelovin\LaravelS3ToUploadedFile\Exceptions\FileNotFoundException;
 
 class LaravelS3ToUploadedFile extends UploadedFile
 {
@@ -20,7 +20,7 @@ class LaravelS3ToUploadedFile extends UploadedFile
     {
 
         if (!$storage->exists($filepath)) {
-            throw new FileNotFoundException($filepath);
+            throw new FileNotFoundException("File does not exist at path $filepath.");
         }
 
         $stream = $storage->get($filepath);
